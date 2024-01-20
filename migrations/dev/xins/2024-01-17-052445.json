@@ -1,0 +1,13 @@
+{
+  "cell_recipes": [
+    {
+      "name": "xins",
+      "tx_hash": "0x94dccee46e2636a729119abb5a74641d12cc8f64e09378d3abceeac807ea7223",
+      "index": 0,
+      "occupied_capacity": 3399800000000,
+      "data_hash": "0x84c2d1a00bb6eb67814d1a2fb0c09f972608b8890d6144a59e087ccc10c03121",
+      "type_id": "0x27762139c09452b5d4be6f34720db031a2ab348679a4612b6863a6907a6244ed"
+    }
+  ],
+  "dep_group_recipes": []
+}

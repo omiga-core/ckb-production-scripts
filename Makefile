@@ -25,7 +25,7 @@ PASSED_MBEDTLS_CFLAGS := -O3 -fPIC -nostdinc -nostdlib -DCKB_DECLARATION_ONLY -I
 BUILDER_DOCKER := nervos/ckb-riscv-gnu-toolchain@sha256:aae8a3f79705f67d505d1f1d5ddc694a4fd537ed1c7e9622420a470d59ba2ec3
 CLANG_FORMAT_DOCKER := kason223/clang-format@sha256:3cce35b0400a7d420ec8504558a02bdfc12fd2d10e40206f140c4545059cd95d
 
-all: build/simple_udt build/anyone_can_pay build/always_success build/validate_signature_rsa build/xudt_rce build/rce_validator \
+all: build/simple_udt build/anyone_can_pay build/always_success build/validate_signature_rsa build/xins_rce build/xudt_rce build/rce_validator \
 	 $(SECP256K1_SRC_20210801) build/secp256k1_data_info_20210801.h
 
 all-via-docker: ${PROTOCOL_HEADER}
@@ -110,7 +110,7 @@ validate_signature_rsa_clean:
 ${PROTOCOL_SCHEMA}:
 	curl -L -o $@ ${PROTOCOL_URL}
 
-ALL_C_SOURCE := $(wildcard c/rce_validator.c /always_success.c c/rce.h c/xudt_rce.c \
+ALL_C_SOURCE := $(wildcard c/rce_validator.c /always_success.c c/rce.h c/xins_rce.c c/xudt_rce.c \
 	c/rce_validator.c tests/xudt_rce/*.c tests/xudt_rce/*.h\
 	c/validate_signature_rsa.h c/validate_signature_rsa.c)
 
@@ -136,6 +136,10 @@ c/xudt_rce_mol2.h: c/xudt_rce.mol
 	moleculec --language - --schema-file c/xudt_rce.mol --format json > build/blockchain_mol2.json
 	moleculec-c2 --input build/blockchain_mol2.json | clang-format -style=Google > c/xudt_rce_mol2.h
 
+build/xins_rce: c/xins_rce.c c/rce.h
+	$(CC) $(XUDT_RCE_CFLAGS) $(LDFLAGS) -o $@ $<
+	$(OBJCOPY) --only-keep-debug $@ $@.debug
+	$(OBJCOPY) --strip-debug --strip-all $@
 
 build/xudt_rce: c/xudt_rce.c c/rce.h
 	$(CC) $(XUDT_RCE_CFLAGS) $(LDFLAGS) -o $@ $<
@@ -175,6 +179,7 @@ clean:
 	rm -rf build/secp256k1_data_20210801
 	rm -rf build/*.debug
 	rm -f build/xudt_rce
+	rm -f build/xins_rce
 	rm -f build/rce_validator
 	cd deps/secp256k1 && [ -f "Makefile" ] && make clean
 	cd deps/secp256k1-20210801 && [ -f "Makefile" ] && make clean
